@@ -1,5 +1,5 @@
-# Use SDK image to build the app
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
@@ -7,18 +7,15 @@ COPY ["LOU.ProductShowcase.sln", "."]
 COPY ["LOU.ProductShowcase/LOU.ProductShowcase.csproj", "LOU.ProductShowcase/"]
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore "LOU.ProductShowcase.sln"
 
-# Copy the rest of the app
+# Copy everything and build
 COPY . .
-
-# Build and publish
-WORKDIR /src/LOU.ProductShowcase
+WORKDIR "/src/LOU.ProductShowcase"
 RUN dotnet publish -c Release -o /app/publish
 
-# Use runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-
 ENTRYPOINT ["dotnet", "LOU.ProductShowcase.dll"]
