@@ -1,0 +1,16 @@
+﻿@model LOU.ProductShowcase.Models.Product
+
+<div class="container admin-container mt-5">
+    <h2 class="mb-4 text-danger">🗑️ Confirm Delete</h2>
+
+    <div class="mb-3">
+        <strong>@Model.Name</strong><br />
+        <img src="@(!string.IsNullOrEmpty(Model.ImageUrl) ? Model.ImageUrl : "/images/products/default.png")" style="height: 100px; object-fit: cover;" />
+    </div>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

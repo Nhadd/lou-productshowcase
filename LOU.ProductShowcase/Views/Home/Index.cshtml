@@ -1,0 +1,127 @@
+﻿@model IEnumerable<LOU.ProductShowcase.Models.Product>
+
+@{
+    ViewData["Title"] = "Product Showcase";
+    var selectedCategory = ViewBag.SelectedCategory as string;
+    var categories = ViewBag.Categories as List<string> ?? new List<string>();
+    var selectedSort = ViewBag.SelectedSort as string ?? "";
+    var modalIndex = 0;
+}
+
+<!-- 🌟 Hero / Welcome Section with Leaf Animation -->
+<section class="hero-section position-relative text-center d-flex flex-column justify-content-center align-items-center intro-container" style="height: 100vh; background: linear-gradient(to bottom, #fdf6ec, #ffffff);">
+    <div class="leaf-container-inside">
+        <div class="leaf-inside" style="left: 10%;">🍁</div>
+        <div class="leaf-inside" style="left: 30%; animation-delay: 1s;">🍁</div>
+        <div class="leaf-inside" style="left: 60%; animation-delay: 2s;">🍁</div>
+        <div class="leaf-inside" style="left: 80%; animation-delay: 3s;">🍁</div>
+    </div>
+
+    <h1 class="display-4 fw-bold text-brown mb-3">Welcome to LOU's Product Showcase</h1>
+    <p class="lead text-muted">Browse curated products and contact us easily.</p>
+    <img src="~/images/cat-17977.gif" class="img-fluid rounded shadow mt-4" style="max-height: 220px;" alt="Welcome GIF" />
+
+    <a href="#products" class="scroll-down text-decoration-none mt-5">
+        <span class="text-muted">Scroll Down</span>
+        <div class="arrow mt-1">⬇️</div>
+    </a>
+</section>
+
+<!-- 🛒 Product Section -->
+<section id="products" class="pt-5" style="margin-top: 12rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        @if (categories.Any())
+        {
+            <div class="btn-group" role="group">
+                <a asp-action="Index" asp-route-category="" asp-route-sort="@selectedSort" class="btn btn-outline-secondary @(string.IsNullOrEmpty(selectedCategory) ? "active" : "")">All</a>
+                @foreach (var cat in categories)
+                {
+                    <a asp-action="Index" asp-route-category="@cat" asp-route-sort="@selectedSort" class="btn btn-outline-secondary @(selectedCategory == cat ? "active" : "")">@cat</a>
+                }
+            </div>
+        }
+
+        <form method="get" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="category" value="@selectedCategory" />
+            <label class="form-label mb-0 fw-semibold">Sort by:</label>
+            <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Default</option>
+                <option value="name" selected="@(selectedSort == "name" ? "selected" : null)">Name (A–Z)</option>
+                <option value="name_desc" selected="@(selectedSort == "name_desc" ? "selected" : null)">Name (Z–A)</option>
+                <option value="price" selected="@(selectedSort == "price" ? "selected" : null)">Price (Low–High)</option>
+                <option value="price_desc" selected="@(selectedSort == "price_desc" ? "selected" : null)">Price (High–Low)</option>
+            </select>
+        </form>
+    </div>
+
+    <h2 class="mb-4 text-center text-brown">📦 My Products</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center shadow-sm">
+            <strong>No products found</strong> in this category or filter.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            @foreach (var item in Model)
+            {
+                var modalId = $"productModal{modalIndex++}";
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 position-relative" role="button" data-bs-toggle="modal" data-bs-target="#@modalId">
+                        <img src="@item.ImageUrl"
+                             class="card-img-top"
+                             alt="@item.Name"
+                             style="height: 160px; object-fit: cover;"
+                             onerror="this.src='/images/products/default.png';" />
+
+                        <div class="card-body py-2 px-3">
+                            <h6 class="card-title fw-semibold mb-1 text-truncate">@item.Name</h6>
+                            <p class="card-text text-success fw-bold small mb-1">₱@item.Price.ToString("N2")</p>
+                            <p class="card-text text-muted small mb-1 text-truncate">@item.Description</p>
+
+                            @if (!string.IsNullOrEmpty(item.Category))
+                            {
+                                <span class="badge bg-secondary position-absolute top-0 end-0 m-2">@item.Category</span>
+                            }
+
+                            @if (item.Stock == 0)
+                            {
+                                <span class="badge bg-danger position-absolute top-0 start-0 m-2">Out of Stock</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🪟 Modal for Product Description -->
+                <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@modalId-Label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="@modalId-Label">@item.Name</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="@item.ImageUrl" alt="@item.Name" class="img-fluid rounded mb-3" onerror="this.src='/images/products/default.png';" />
+                                <p><strong>Price:</strong> ₱@item.Price.ToString("N2")</p>
+                                <p><strong>Category:</strong> @item.Category</p>
+                                <p><strong>Stock:</strong> @(item.Stock > 0 ? item.Stock : "Out of Stock")</p>
+                                <hr />
+                                <p>@item.Description</p>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <a href="https://m.me/YOUR_PAGE" target="_blank" class="btn btn-outline-primary btn-sm" title="Message us">📩 Message</a>
+                                    <a href="mailto:youremail@example.com" class="btn btn-outline-danger btn-sm" title="Email">📧 Email</a>
+                                    <a href="tel:09123456789" class="btn btn-outline-success btn-sm" title="Call">📞 Call</a>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>

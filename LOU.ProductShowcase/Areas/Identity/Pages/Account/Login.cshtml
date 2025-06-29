@@ -1,0 +1,62 @@
+﻿@page
+@model LOU.ProductShowcase.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<section class="container mt-5" style="max-width: 480px;">
+    <div class="text-center mb-4">
+        <h2 class="text-dark fw-bold">🔐 Admin Login</h2>
+        <p class="text-muted small">Authorized personnel only</p>
+    </div>
+
+    <div class="card shadow border-0 rounded-4" style="background-color: #fdfaf6;">
+        <div class="card-body p-4">
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label text-muted">Email</label>
+                    <input asp-for="Input.Email" class="form-control rounded-3" style="background-color: #fffbe6;" />
+                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label text-muted">Password</label>
+                    <input asp-for="Input.Password" class="form-control rounded-3" style="background-color: #fffbe6;" />
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="Input.RememberMe" class="form-check-input" />
+                    <label asp-for="Input.RememberMe" class="form-check-label">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn w-100 text-white fw-semibold" style="background-color: #6a4e2c;">
+                    🔓 Login
+                </button>
+            </form>
+
+            @if (Model.ExternalLogins?.Count > 0)
+            {
+                <hr class="my-4" />
+                <div class="text-center text-muted small mb-2">Or use a social account</div>
+                <div class="d-flex justify-content-center">
+                    @foreach (var provider in Model.ExternalLogins)
+                    {
+                        <form method="post" asp-page="./ExternalLogin" asp-route-provider="@provider.Name" asp-route-returnUrl="@Model.ReturnUrl">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm mx-1">@provider.DisplayName</button>
+                        </form>
+                    }
+                </div>
+            }
+
+            <div class="mt-4 text-center">
+                <span class="text-muted small">🛡️ Authorized Person Can Login</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

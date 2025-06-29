@@ -1,0 +1,14 @@
+﻿@page
+@model LOU.ProductShowcase.Areas.Identity.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Log out";
+}
+
+<section class="container text-center mt-5">
+    <h2 class="mb-3">⚠️ Are you sure you want to log out?</h2>
+
+    <form method="post">
+        <button type="submit" class="btn btn-danger">🔓 Yes, log me out</button>
+        <a asp-page="/Account/Login" class="btn btn-outline-secondary ms-2">Cancel</a>
+    </form>
+</section>

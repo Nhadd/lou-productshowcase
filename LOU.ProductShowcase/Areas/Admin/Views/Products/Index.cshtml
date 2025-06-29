@@ -1,0 +1,111 @@
+﻿@model IEnumerable<LOU.ProductShowcase.Models.Product>
+@{
+    ViewData["Title"] = "Manage Products";
+    var currentFilter = ViewData["CurrentFilter"] as string;
+    var currentCategory = ViewData["CurrentCategory"] as string;
+    var categories = ViewBag.Categories as List<string>;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="container mt-5 p-4 bg-white shadow rounded-3">
+    <!-- 🔧 Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brown fw-semibold">🛠 Manage Products</h2>
+        <div class="d-flex gap-2">
+            <a class="btn btn-success" asp-action="Create">➕ Add Product</a>
+        </div>
+    </div>
+
+    <!-- 🔍 Filters -->
+    <form method="get" class="row row-cols-lg-auto g-3 align-items-center mb-3">
+        <div class="col">
+            <input name="searchString" class="form-control" placeholder="🔍 Search by name" value="@currentFilter" />
+        </div>
+        <div class="col">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                @foreach (var cat in categories)
+                {
+                    <option value="@cat" selected="@(cat == currentCategory ? "selected" : null)">@cat</option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-outline-primary">Apply</button>
+        </div>
+    </form>
+
+    <!-- 🚫 No Products -->
+    @if (!Model.Any())
+    {
+        <div class="alert shadow-sm text-center p-5 mb-0" style="background-color: #fef6e4; border-left: 6px solid #d49b54; color: #5c4033;">
+            <h4 class="mb-2">🚫 No Products Found</h4>
+            <p class="mb-3">Try adjusting your filters or add new products.</p>
+            <a class="btn btn-outline-success btn-sm" asp-action="Create">➕ Add New Product</a>
+        </div>
+    }
+    else
+    {
+        <!-- 📦 Product Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered shadow-sm">
+                <thead class="text-white" style="background-color: #5e4b3c;">
+                    <tr class="text-center">
+                        <th style="width: 100px;">Image</th>
+                        <th>Name</th>
+                        <th style="width: 120px;">Category</th> <!-- ✅ NEW -->
+                        <th style="width: 100px;">Price</th>
+                        <th style="width: 80px;">Stock</th>
+                        <th style="width: 120px;">Status</th>
+                        <th style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="align-middle">
+                            <td class="text-center">
+                                <img src="@(!string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "/images/products/default.png")"
+                                     class="img-thumbnail"
+                                     style="height: 60px; width: 60px; object-fit: cover;" />
+                            </td>
+                            <td>@item.Name</td>
+                            <td class="text-center"><span class="badge bg-light text-dark">@item.Category</span></td> <!-- ✅ NEW -->
+                            <td>₱@item.Price.ToString("N2")</td>
+                            <td>@item.Stock</td>
+                            <td class="text-center">
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge rounded-pill bg-success px-3 py-2">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-secondary px-3 py-2">Hidden</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">✏️ Edit</a>
+                                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">🗑️ Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 🔢 Pagination -->
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchString = currentFilter, category = currentCategory })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
